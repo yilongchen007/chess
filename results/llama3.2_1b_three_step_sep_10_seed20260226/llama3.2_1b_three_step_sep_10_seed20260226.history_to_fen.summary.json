@@ -1,0 +1,17 @@
+{
+  "task": "history_to_fen",
+  "input_jsonl": "data/fixed_positions_10_seed20260226.jsonl",
+  "model": "llama3.2:1b",
+  "ollama_url": "http://127.0.0.1:11434/api/chat",
+  "num_positions": 10,
+  "json_valid_rate": 1.0,
+  "schema_valid_rate": 1.0,
+  "fen_valid_rate": 0.3,
+  "fen_exact_match_rate": 0.0,
+  "avg_latency_sec": 4.47265,
+  "error_histogram": {
+    "invalid_fen_format": 7,
+    "fen_mismatch": 10
+  },
+  "result_jsonl": "results/llama3.2_1b_three_step_sep_10_seed20260226.history_to_fen.jsonl"
+}
