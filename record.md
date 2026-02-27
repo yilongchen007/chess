@@ -3,28 +3,6 @@
 This file stores experiment results only.
 All rules/workflows are maintained in `AGENTS.md`.
 
-## 2026-02-26 - End-to-End Sample Re-run After Schema/Prompt Fix (llama3.2:1b)
-
-- Setup: `data/sample_game.pgn`, schema-constrained JSON output.
-- Result: `Correctness=True`.
-- Checks:
-  - valid JSON: pass
-  - key names: pass (`state_fen`, `legal_moves_san`)
-  - FEN match reference: pass
-  - legal move completeness/legality: pass (`32/32`, no illegal, no missing)
-
-## 2026-02-27 - Fixed 10 Positions, Complete Legal-Moves (llama3.2:1b)
-
-- Input set: `data/fixed_positions_10_seed20260226.jsonl`
-- Summary (`fen -> complete legal moves`):
-  - `json_valid_rate=0.9`
-  - `schema_valid_rate=0.9`
-  - `exact_match_rate=0.0`
-  - `avg_illegal_per_position=10.2`
-  - `avg_missing_per_position=31.9`
-  - `avg_latency_sec=9.44`
-  - `error_histogram={contains_illegal_moves: 9, incomplete_move_list: 9, request_error: 1}`
-
 ## 2026-02-27 - Three-Step Separated Evaluation (llama3.2:1b, 10 positions)
 
 - Files:
@@ -45,3 +23,17 @@ All rules/workflows are maintained in `AGENTS.md`.
 - Interpretation:
   - Step 3 is worse than Step 2.
   - State reconstruction from history introduces extra failure on top of move-rule generation.
+
+## 2026-02-27 - Summary (Three-Step, 10 Positions)
+
+| Task | Num Positions | JSON Valid Rate | Schema Valid Rate | Core Accuracy | Avg Illegal / Position | Avg Missing / Position | Error Signals | Avg Latency (s) |
+|---|---:|---:|---:|---:|---|---:|
+| `history -> FEN` | 10 | 1.0 | 1.0 | `fen_exact_match_rate = 0.0` | N/A | N/A | `invalid_fen_format: 7`, `fen_mismatch: 10` | 4.47 |
+| `FEN -> legal_moves` | 10 | 1.0 | 1.0 | `exact_match_rate = 0.0` | 12.3 | 34.4 | `contains_illegal_moves: 10`, `incomplete_move_list: 10` | 5.17 |
+| `history -> legal_moves` | 10 | 1.0 | 1.0 | `exact_match_rate = 0.0` | 17.5 | 36.1 | `contains_illegal_moves: 10`, `incomplete_move_list: 10` | 8.50 |
+
+Conclusions:
+- Output format compliance is strong, but task correctness is zero across all three settings.
+- `history -> FEN` is the main bottleneck, indicating weak board-state reconstruction.
+- Even with correct FEN input, complete legal-move enumeration still fails, so rule-complete generation is also beyond current model capability.
+- `history -> legal_moves` is slower and worse than `FEN -> legal_moves`, consistent with compounded errors.

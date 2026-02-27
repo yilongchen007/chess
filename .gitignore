@@ -1,0 +1,7 @@
+# Local runtime and caches
+__pycache__/
+.venv/
+.ollama/
+
+# Large/raw local datasets
+data/
